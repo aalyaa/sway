@@ -78,8 +78,6 @@
 #define SWAY_FOREIGN_TOPLEVEL_LIST_VERSION 1
 #define SWAY_PRESENTATION_VERSION 2
 
-bool allow_unsupported_gpu = false;
-
 #if WLR_HAS_DRM_BACKEND
 static void handle_drm_lease_request(struct wl_listener *listener, void *data) {
 	/* We only offer non-desktop outputs, but in the future we might want to do
@@ -147,42 +145,6 @@ static bool filter_global(const struct wl_client *client,
 	}
 
 	return true;
-}
-
-static void detect_proprietary(struct wlr_backend *backend, void *data) {
-	int drm_fd = wlr_backend_get_drm_fd(backend);
-	if (drm_fd < 0) {
-		return;
-	}
-
-	drmVersion *version = drmGetVersion(drm_fd);
-	if (version == NULL) {
-		sway_log(SWAY_ERROR, "drmGetVersion() failed");
-		return;
-	}
-
-	bool is_unsupported = false;
-	if (strcmp(version->name, "nvidia-drm") == 0) {
-		is_unsupported = true;
-		sway_log(SWAY_ERROR, "!!! Proprietary Nvidia drivers are in use !!!");
-		if (!allow_unsupported_gpu) {
-			sway_log(SWAY_ERROR, "Use Nouveau instead");
-		}
-	}
-
-	if (strcmp(version->name, "evdi") == 0) {
-		is_unsupported = true;
-		sway_log(SWAY_ERROR, "!!! Proprietary DisplayLink drivers are in use !!!");
-	}
-
-	if (!allow_unsupported_gpu && is_unsupported) {
-		sway_log(SWAY_ERROR,
-			"Proprietary drivers are NOT supported. To launch sway anyway, "
-			"launch with --unsupported-gpu and DO NOT report issues.");
-		exit(EXIT_FAILURE);
-	}
-
-	drmFreeVersion(version);
 }
 
 static void do_renderer_recreate(void *data) {
