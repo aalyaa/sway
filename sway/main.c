@@ -207,7 +207,6 @@ static const struct option long_options[] = {
 	{"version", no_argument, NULL, 'v'},
 	{"verbose", no_argument, NULL, 'V'},
 	{"get-socketpath", no_argument, NULL, 'p'},
-	{"unsupported-gpu", no_argument, NULL, 'u'},
 	{0, 0, 0, 0}
 };
 
@@ -252,9 +251,6 @@ int main(int argc, char **argv) {
 			break;
 		case 'D': // extended debug options
 			enable_debug_flag(optarg);
-			break;
-		case 'u':
-			allow_unsupported_gpu = true;
 			break;
 		case 'v': // version
 			printf("sway version " SWAY_VERSION "\n");
